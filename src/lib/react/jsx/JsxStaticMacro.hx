@@ -41,7 +41,7 @@ class JsxStaticMacro
 			fields.push({
 				access: [APublic, AStatic],
 				name: FIELD_NAME,
-				kind: FVar(macro :react.React.CreateElementType, macro $i{proxyName}),
+				kind: FVar(null, macro $i{proxyName}),
 				doc: null,
 				meta: null,
 				pos: inClass.pos
