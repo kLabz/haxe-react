@@ -131,12 +131,6 @@ abstract ReactNodeOf<TProps>(ReactNode) to ReactNode {
 	{
 		return cast cls;
 	}
-
-	@:from
-	static public function fromFragment<TProps>(f:ReactFragment):ReactNodeOf<TProps>
-	{
-		return cast f;
-	}
 	#end
 
 	@:from
@@ -150,6 +144,15 @@ abstract ReactNodeOf<TProps>(ReactNode) to ReactNode {
 
 		switch (Context.getExpectedType()) {
 			case TAbstract(_, [TType(_.get() => tProps, [])]):
+				Context.error(
+					'Props do not unify with ${tProps.name}',
+					expr.pos
+				);
+
+			case TAbstract(
+				_.toString() => 'Null',
+				[TAbstract(_, [TType(_.get() => tProps, [])])]
+			):
 				Context.error(
 					'Props do not unify with ${tProps.name}',
 					expr.pos
