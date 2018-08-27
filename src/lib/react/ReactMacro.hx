@@ -190,14 +190,23 @@ class ReactMacro
 		var neededAttrs = [];
 
 		try {
-			var tprops = Context.storeTypedExpr(Context.typeExpr(macro @:pos(type.pos) {
-				function get<T>(c:Class<T>):T return null;
-				@:privateAccess get($type).props;
-			}));
+			switch (Context.typeof(type)) {
+				case TType(_, _):
+					var tprops = Context.storeTypedExpr(Context.typeExpr(macro @:pos(type.pos) {
+						function get<T>(c:Class<T>):T return null;
+						@:privateAccess get($type).props;
+					}));
 
-			switch (Context.typeof(tprops))
-			{
-				case TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _):
+					switch (Context.typeof(tprops)) {
+						case TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _):
+							for (f in fields)
+								if (!f.meta.has(':optional'))
+									neededAttrs.push(f.name);
+
+						default:
+					}
+
+				case TFun([{t: TType(_.get() => _.type => TAnonymous(_.get().fields => fields), _)}], _):
 					for (f in fields)
 						if (!f.meta.has(':optional'))
 							neededAttrs.push(f.name);
