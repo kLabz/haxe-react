@@ -10,7 +10,6 @@ typedef Builder = ClassType -> Array<Field> -> Array<Field>;
 class ReactComponentMacro {
 	static var builders:Array<Builder> = [
 		react.ReactMacro.buildComponent,
-		react.ReactTypeMacro.alterComponentSignatures,
 		react.jsx.JsxStaticMacro.disallowInReactComponent,
 		react.wrap.ReactWrapperMacro.buildComponent,
 

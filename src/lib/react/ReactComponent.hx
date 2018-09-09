@@ -46,9 +46,9 @@ extern class ReactComponentOf<TProps:{}, TState:{}>
 	/**
 		https://facebook.github.io/react/docs/react-component.html#setstate
 	**/
-	@:overload(function(nextState:TState, ?callback:Void -> Void):Void {})
-	@:overload(function(nextState:TState -> TProps -> TState, ?callback:Void -> Void):Void {})
-	function setState(nextState:TState -> TState, ?callback:Void -> Void):Void;
+	@:overload(function(nextState:Partial<TState>, ?callback:Void -> Void):Void {})
+	@:overload(function(nextState:TState -> TProps -> Partial<TState>, ?callback:Void -> Void):Void {})
+	function setState(nextState:TState -> Partial<TState>, ?callback:Void -> Void):Void;
 
 	/**
 		https://facebook.github.io/react/docs/react-component.html#render

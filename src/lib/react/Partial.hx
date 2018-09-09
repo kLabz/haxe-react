@@ -6,60 +6,38 @@
 */
 package react;
 
-import haxe.macro.Context;
+#if macro
+import haxe.macro.Context.*;
 import haxe.macro.Expr;
-import haxe.macro.TypeTools;
-
-#if !macro
-@:genericBuild(react.PartialMacro.build())
+using tink.MacroApi;
 #end
-class Partial<T> {}
 
-class PartialMacro {
-	#if macro
-	static function build()
-	{
-		switch Context.getLocalType()
-		{
-			// Match when class's type parameter leads to an anonymous type (we convert to a complex type in the process to make it easier to work with)
-			case TInst(_, [Context.followWithAbstracts(_) => TypeTools.toComplexType(_) => TAnonymous(fields)]):
-				// Add @:optional meta to all fields
-				var newFields = fields.map(addMeta);
-				return TAnonymous(newFields);
+@:forward
+abstract Partial<T>(T) {
+  @:from static macro function ofAny(e:Expr) {
 
-			default:
-				Context.fatalError('Type parameter should be an anonymous structure', Context.currentPos());
-		}
+		var expected = getExpectedType();
+    
+		var ret =
+		 	switch followWithAbstracts(getExpectedType()) {
+				case TDynamic(_): e;
+				case TAnonymous(_.get().fields => fields):
+					var t = TAnonymous([
+						for (f in fields) {
+							name: f.name,
+							pos: e.pos,
+							kind: FProp('default', 'never', f.type.toComplex()),
+							meta: [{ name: ':optional', params: [], pos: e.pos }]
+						}
+					]);//TODO: consider caching these
 
-		return null;
-	}
+					macro @:pos(e.pos) ($e:$t);
+				case v: 
+					fatalError('Cannot have partial $v', currentPos());
+			}
 
-	static function addMeta(field: Field): Field
-	{
-		// Handle Null<T> and optional fields already parsed by the compiler
-		var kind = switch (field.kind) {
-			case FVar(TPath({
-					name: 'StdTypes',
-					sub: 'Null',
-					params: [TPType(TPath(tpath))]
-				}), write):
-				FVar(TPath(tpath), write);
+		var et = expected.toComplex();
 
-			default:
-				field.kind;
-		}
-
-		return {
-			name: field.name,
-			kind: kind,
-			access: field.access,
-			meta: field.meta.concat([{
-				name: ':optional',
-				params: [],
-				pos: Context.currentPos()
-			}]),
-			pos: field.pos
-		};
-	}
-	#end
+		return macro @:pos(e.pos) (cast $ret:$et);
+  }
 }
