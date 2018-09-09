@@ -11,7 +11,7 @@ class ReactTypeMacro
 	#if macro
 	public static function ensureRenderOverride(inClass:ClassType, fields:Array<Field>):Array<Field>
 	{
-		if (!inClass.isExtern)
+		if (!(inClass.isExtern || inClass.meta.has(':ignore_empty_render')))
 			if (!Lambda.exists(fields, function(f) return f.name == 'render'))
 				Context.warning(
 					'Component ${inClass.name}: '
