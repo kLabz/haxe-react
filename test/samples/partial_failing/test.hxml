@@ -1,0 +1,5 @@
+-main Main
+-cp ../../../src/lib
+-lib tink_hxx
+-js .build/index.js
+

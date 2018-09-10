@@ -1,5 +1,6 @@
 import massive.munit.TestSuite;
 
+import PartialTest;
 import ReactMacroTest;
 
 /**
@@ -12,6 +13,7 @@ class TestSuite extends massive.munit.TestSuite
 	{
 		super();
 
+		add(PartialTest);
 		add(ReactMacroTest);
 	}
 }

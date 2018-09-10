@@ -18,6 +18,8 @@ install:
 
 script:
   - haxelib run munit test -js
+  - bash ./test/samples/partial/test.sh
+  - bash ./test/samples/partial_failing/test.sh
 
 deploy:
   - provider: script
