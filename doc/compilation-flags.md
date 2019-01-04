@@ -105,3 +105,23 @@ public props type of your component wrapped with `@:wrap` so that jsx type
 checking can be done.
 See [Wrapping your components in HOCs](./wrapping-with-hoc.md).
 
+## `-D react_jsx_no_aria`
+
+Since [`affd6e4a`][affd6e4a], `aria-*` props are type-checked against their
+[specification][aria-specs], and enums are provided where necessary (see
+`react.jsx.AriaAttributes`). They are enabled by default for both html elements
+and react components. You can disable support for `aria-*` props entirely with
+`-D react_jsx_no_aria`, or only disable it for react components with
+`-D react_jsx_no_aria_for_components`.
+
+## `-D react_jsx_no_data_for_components`
+
+Since [`affd6e4a`][affd6e4a], `data-*` props are enabled by default for react
+components (all unknown props are already accepted for html elements), with a
+type of `Dynamic`. This behavior can be disabled with
+`-D react_jsx_no_data_for_components`, meaning that `data-*` props need to be
+explicitely accepted by the components (which is currently not that easy in
+Haxe).
+
+[affd6e4a]: https://github.com/kLabz/haxe-react/commit/affd6e4a
+[aria-specs]: https://www.w3.org/TR/wai-aria-1.1/#state_prop_def
