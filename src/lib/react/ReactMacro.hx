@@ -17,7 +17,7 @@ import react.macro.PropsValidator;
 import react.macro.ReactComponentMacro.ACCEPTS_MORE_PROPS_META;
 
 using tink.MacroApi;
-
+using StringTools;
 #if (haxe_ver < 4)
 typedef ObjectField = {field:String, expr:Expr};
 #end
@@ -27,19 +27,6 @@ typedef ComponentInfo = {
 	props:Array<ObjectField>
 }
 
-private class JsxParser extends tink.hxx.Parser
-{
-	public function new(source)
-	{
-		super(source, JsxParser.new, { fragment: 'react.Fragment', defaultExtension: 'html' });
-	}
-
-	override function tagName()
-	{
-		allow("$");
-		return super.tagName();
-	}
-}
 #end
 
 /**
@@ -49,11 +36,14 @@ class ReactMacro
 {
 	public static macro function jsx(expr:ExprOf<String>):Expr
 	{
-		return switch tink.hxx.Parser.parseRootWith(expr, JsxParser.new).value {
-			case [v]: child(v);
-			case []: expr.reject('empty jsx');
-			default: expr.reject('only one node allowed here');
-		};
+		function children(c:Children)
+			return switch c.value {
+				case [v]: child(v);
+				case []: expr.reject('empty jsx');
+				default: expr.reject('only one node allowed here');
+			};
+
+		return children(tink.hxx.Parser.parseRoot(expr, { fragment: 'react.Fragment', defaultExtension: 'html', treatNested: children }));
 	}
 
 	public static macro function getExtraProps(props:Expr):Expr {
@@ -469,7 +459,7 @@ class ReactMacro
 			case CText(s): macro @:pos(s.pos) $v{replaceEntities(s.value, s.pos)};
 			case CExpr(e): e;
 			case CNode(n):
-				var type = switch (n.name.value.split('.')) {
+				var type = switch (n.name.value.replace('$', '').split('.')) {
 					case [tag] if (tag.charAt(0) == tag.charAt(0).toLowerCase()):
 						macro @:pos(n.name.pos) $v{tag};
 					case parts:
