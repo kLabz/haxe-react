@@ -13,6 +13,13 @@ class CompBasic extends ReactComponent {}
 @:ignoreEmptyRender
 class CompBasicProps extends ReactComponentOfProps<{a:Int}> {}
 
+typedef RenderProps = {
+	@:optional var children:Int->ReactFragment;
+}
+
+@:ignoreEmptyRender
+class CompRenderProp extends ReactComponentOfProps<RenderProps> {}
+
 @:ignoreEmptyRender
 class CompDefaults extends ReactComponent {
 	static public var defaultProps = {
@@ -75,6 +82,14 @@ class ReactMacroTest
 		var e = jsx('<CompBasic a="foo" />');
 		Assert.areEqual(CompBasic, e.type);
 		assertHasProps(e.props, ['a'], ['foo']);
+	}
+
+	@Test
+	public function render_prop()
+	{
+		var e = jsx('<$CompRenderProp>${function(value:Int) { return null; }}</$CompRenderProp>');
+		Assert.areEqual(CompRenderProp, e.type);
+		// TODO: further check; should fail at compile time atm
 	}
 
 	@Test

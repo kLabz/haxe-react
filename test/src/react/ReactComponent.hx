@@ -94,17 +94,20 @@ class ReactComponentOf<TProps, TState>
 }
 
 typedef ReactElement = {
-	type:Dynamic,
+	type:ReactType,
 	props:Dynamic,
 	?key:Dynamic,
-	?ref:Dynamic
+	?ref:Dynamic,
 }
 
-typedef ReactFragment = EitherType<
-	ReactElement,
-	EitherType<
-		Array<ReactFragment>,
-		EitherType<String, Float>
-	>
->;
+@:pure @:coreType abstract ReactSingleFragment
+	from String
+	from Float
+	from Bool
+	from ReactElement {}
 
+@:pure @:coreType abstract ReactFragment
+	from ReactSingleFragment
+	from Array<ReactFragment>
+	from Array<ReactElement>
+	from Array<ReactSingleFragment> {}
