@@ -106,70 +106,16 @@ class ReactTypeMacro
 		propsType:ComplexType,
 		stateType:ComplexType
 	) {
-		var partialStateType = switch (ComplexTypeTools.toType(stateType)) {
-			case TType(_):
-				TPath({
-					name: 'Partial',
-					pack: ['react'],
-					params: [TPType(stateType)]
-				});
-
-			default:
-				macro :Dynamic;
-		};
-
-		var setStateArgs:Array<FunctionArg> = [
-			{
-				name: 'nextState',
-				// TState -> Partial<TState>
-				type: TFunction([stateType], partialStateType),
-				opt: false
-			},
-			{
-				name: 'callback',
-				type: macro :Void->Void,
-				opt: true
-			}
-		];
-
-		fields.push({
-			name: 'setState',
-			access: [APublic, AOverride],
-			meta: [
-				{
-					// Add @:extern meta so that this code only exist at compile time
-					name: ':extern',
-					params: null,
-					pos: Context.currentPos()
-				},
-				{
-					// First overload:
-					// function(nextState:TState -> TProps -> Partial<TState>, ?callback:Void -> Void):Void {}
-					name: ':overload',
-					params: [generateSetStateOverload(
-						TFunction([stateType, propsType], partialStateType)
-					)],
-					pos: Context.currentPos()
-				},
-				{
-					// Second overload:
-					// function(nextState:Partial<TState>, ?callback:Void -> Void):Void {}
-					name: ':overload',
-					params: [generateSetStateOverload(partialStateType)],
-					pos: Context.currentPos()
-				}
-			],
-			kind: FFun({
-				args: setStateArgs,
-				ret: macro :Void,
-				#if haxe4
-				expr: null
-				#else
-				expr: macro { super.setState(nextState, callback); }
+		fields.push((macro class C {
+			@:extern
+			@:overload(function(nextState:$stateType -> $propsType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
+			@:overload(function(state: react.Partial<$stateType>):Void {})
+			override public function setState(nextState:$stateType -> react.Partial<$stateType>, ?callback:Void -> Void): Void
+				#if (haxe_ver < 4)
+				{ super.setState(nextState, callback); }
 				#end
-			}),
-			pos: inClass.pos
-		});
+			;
+		}).fields[0]);
 	}
 
 	static function generateSetStateOverload(nextStateType:ComplexType) {
