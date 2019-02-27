@@ -12,8 +12,8 @@ typedef ReactComponentProps = {
 	STUB CLASSES
 **/
 typedef ReactComponent = ReactComponentOf<Dynamic, Dynamic>;
-typedef ReactComponentOfProps<TProps> = ReactComponentOf<TProps, Void>;
-typedef ReactComponentOfState<TState> = ReactComponentOf<Void, TState>;
+typedef ReactComponentOfProps<TProps> = ReactComponentOf<TProps, Empty>;
+typedef ReactComponentOfState<TState> = ReactComponentOf<Empty, TState>;
 
 #if react_deprecated_refs
 // Keep the old ReactComponentOfPropsAndState typedef available for a few versions
@@ -45,7 +45,9 @@ class ReactComponentOf<TProps, TState>
 	/**
 		https://facebook.github.io/react/docs/react-component.html#setstate
 	**/
-	function setState(nextState:Dynamic, ?callback:Void -> Void):Void {};
+	@:overload(function(nextState:TState -> TState, ?callback:Void -> Void):Void {})
+	@:overload(function(nextState:TState -> TProps -> TState, ?callback:Void -> Void):Void {})
+	function setState(nextState:TState, ?callback:Void -> Void):Void {};
 
 	/**
 		https://facebook.github.io/react/docs/react-component.html#render
