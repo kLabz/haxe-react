@@ -111,7 +111,7 @@ class ReactTypeMacro
 			@:overload(function(nextState:$stateType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
 			@:overload(function(nextState:$stateType -> $propsType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
 			override public function setState(state: react.Partial<$stateType>, ?callback:Void -> Void): Void
-				#if (haxe4 || haxe_ver >= 4.0) // some preview builds required the function body and also didn't set the haxe4 flag
+				#if (haxe4 || haxe_ver > 4.0) // some preview builds required the function body and also didn't set the haxe4 flag
 				#else
 				{ super.setState(state, callback); }
 				#end
