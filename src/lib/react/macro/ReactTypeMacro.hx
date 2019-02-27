@@ -110,7 +110,7 @@ class ReactTypeMacro
 			@:extern
 			@:overload(function(nextState:$stateType -> $propsType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
 			@:overload(function(nextState:$stateType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
-			override public function setState(state: react.Partial<$stateType>): Void
+			override public function setState(state: react.Partial<$stateType>, ?callback:Void -> Void): Void
 				#if (haxe_ver < 4)
 				{ super.setState(nextState, callback); }
 				#end
@@ -118,27 +118,5 @@ class ReactTypeMacro
 		}).fields[0]);
 	}
 
-	static function generateSetStateOverload(nextStateType:ComplexType) {
-		return {
-			expr: EFunction(null, {
-				args: [
-					{
-						name: 'nextState',
-						type: nextStateType,
-						opt: false
-					},
-					{
-						name: 'callback',
-						type: macro :Void->Void,
-						opt: true
-					}
-				],
-				expr: macro {},
-				params: null,
-				ret: macro :Void
-			}),
-			pos: Context.currentPos()
-		};
-	}
 	#end
 }
