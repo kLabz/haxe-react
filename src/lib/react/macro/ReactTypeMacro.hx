@@ -106,12 +106,15 @@ class ReactTypeMacro
 		propsType:ComplexType,
 		stateType:ComplexType
 	) {
+		trace(Context.getDefines());
 		fields.push((macro class C {
 			@:extern
 			@:overload(function(nextState:$stateType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
 			@:overload(function(nextState:$stateType -> $propsType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
 			override public function setState(nextState: react.Partial<$stateType>, ?callback:Void -> Void): Void
-				#if (haxe4 || haxe_ver > 4.0) // some preview builds required the function body and also didn't set the haxe4 flag
+				#if (haxe4 || haxe_ver > 4.0)
+				// explictly omit function body
+				// newer haxe 4 builds (preview 5 and up) don't require a function body – however haxe4 flag is not set until rc1
 				#else
 				{ super.setState(nextState, callback); }
 				#end
