@@ -12,7 +12,6 @@ matrix:
 
 install:
   - haxelib install munit
-  - haxelib install hamcrest
   - haxelib install hxnodejs
   - haxelib install tink_hxx
 
