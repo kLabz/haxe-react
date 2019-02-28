@@ -106,7 +106,6 @@ class ReactTypeMacro
 		propsType:ComplexType,
 		stateType:ComplexType
 	) {
-		trace(Context.getDefines());
 		fields.push((macro class C {
 			@:extern
 			@:overload(function(nextState:$stateType -> react.Partial<$stateType>, ?callback:Void -> Void):Void {})
