@@ -517,7 +517,7 @@ class ReactMacro
 						case Regular(name, value):
 							neededAttrs.remove(name.value);
 							var expr = value.getString()
-								.map(function (s) return macro $v{replaceEntities(s, value.pos)})
+								.map(function (s) return haxe.macro.MacroStringTools.formatString(replaceEntities(s, value.pos), value.pos))
 								.orUse(value);
 
 							switch (name.value)

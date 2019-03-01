@@ -116,6 +116,15 @@ class ReactMacroTest
 		// TODO: further check; should fail at compile time atm
 	}
 
+@Test
+	public function interpolate_attributes()
+	{
+		var answer = "42";
+		var e = jsx('<input name="question" value="the answer is $42" />');
+		Assert.areEqual(e.props.value, 'the answer is $42');
+		// TODO: further check; should fail at compile time atm
+	}
+
 	@Test
 	public function fragments()
 	{
