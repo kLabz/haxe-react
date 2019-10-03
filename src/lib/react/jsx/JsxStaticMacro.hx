@@ -220,11 +220,11 @@ class JsxStaticMacro
 	{
 		var initModule = "JsxStaticInit__";
 
-		for (m in modules) switch (m) {
-			case TClassDecl(_.toString() => "JsxStaticInit__"):
-				return;
-			case _:
+		try {
+			Context.getType(initModule);
+			return;
 		}
+		catch (e:Dynamic) {}
 
 		var exprs = decls.map(function(decl) {
 			var fName = decl.fieldName;
