@@ -6,7 +6,7 @@ import js.html.EventTarget;
 /**
 	https://facebook.github.io/react/docs/events.html
 **/
-extern class ReactEvent
+extern class SyntheticEvent<NativeEvent>
 {
 	public var bubbles(default, null):Bool;
 	public var cancelable(default, null):Bool;
@@ -14,7 +14,7 @@ extern class ReactEvent
 	public var defaultPrevented(default, null):Bool;
 	public var eventPhase(default, null):Int;
 	public var isTrusted(default, null):Bool;
-	public var nativeEvent(default, null):Event;
+	public var nativeEvent(default, null):NativeEvent;
 	public var target(default, null):EventTarget;
 	public var timeStamp(default, null):Date;
 	public var type(default, null):String;
@@ -23,4 +23,5 @@ extern class ReactEvent
 	public function isDefaultPrevented():Bool;
 	public function stopPropagation():Void;
 	public function isPropagationStopped():Bool;
+	public function persist():Void;
 }
