@@ -16,7 +16,11 @@ class JsxLiteral {
 		if (ref == null) ref = macro null;
 
 		var fields:Array<ObjectField> = [
-			{field: #if (haxe_ver < 4) "@$__hx__$$typeof" #else "$$typeof", quotes: Quoted #end, expr: macro untyped __js__("$$tre")},
+			#if haxe4
+			{field: "$$typeof", quotes: Quoted, expr: macro js.Syntax.code("$$tre")},
+			#else
+			{field: "@$__hx__$$typeof", expr: macro untyped __js__("$$tre")},
+			#end
 			{field: 'type', expr: macro (${type} : react.ReactType)},
 			{field: 'props', expr: props}
 		];

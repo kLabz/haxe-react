@@ -218,7 +218,11 @@ class ReactMacro
 									@:mergeBlock $b{[for (defaultProp in defaultProps) {
 										var name = defaultProp.field;
 										macro {
+											#if haxe4
+											if (js.Syntax.code('{0} === undefined', __props.$name))
+											#else
 											if (untyped __js__('{0} === undefined', __props.$name))
+											#end
 												__props.$name = @:privateAccess $e{typeInfo.ref}.defaultProps.$name;
 										};
 									}]};
