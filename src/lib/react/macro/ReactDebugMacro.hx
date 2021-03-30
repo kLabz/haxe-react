@@ -55,9 +55,9 @@ class ReactDebugMacro
 			{
 				switch (field.kind) {
 					case FFun(f):
-						f.expr = macro {
-							${f.expr}
-							${exprConstructor(inClass)}
+						f.expr = macro @:pos(field.pos) @:mergeBlock {
+							@:mergeBlock ${f.expr};
+							@:mergeBlock ${exprConstructor(inClass)};
 						};
 
 						return true;

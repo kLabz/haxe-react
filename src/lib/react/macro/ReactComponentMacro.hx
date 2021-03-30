@@ -4,6 +4,7 @@ package react.macro;
 import haxe.macro.ComplexTypeTools;
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import haxe.macro.ExprTools;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
 
@@ -32,6 +33,10 @@ typedef ExtendedObjectField = {
 class ReactComponentMacro {
 	static public inline var REACT_COMPONENT_BUILDER = "ReactComponent";
 	@:deprecated static public inline var ACCEPTS_MORE_PROPS_META = ReactMeta.AcceptsMoreProps;
+
+	#if (js_es == '6')
+	static public inline var ES6_CONSTRUCTOR_FIX = "ReactComponent_ES6_CONSTRUCTOR_FIX";
+	#end
 
 	static var componentsMap:Map<String, ComponentInfo> = new Map();
 
@@ -66,6 +71,10 @@ class ReactComponentMacro {
 		#if (debug && react_runtime_warnings)
 		{build: ReactDebugMacro.buildComponent, key: ReactDebugMacro.REACT_DEBUG_BUILDER},
 		#end
+		#end
+
+		#if (js_es == '6')
+		{build: fixES6Constructor, key: ES6_CONSTRUCTOR_FIX},
 		#end
 	];
 
@@ -177,6 +186,102 @@ class ReactComponentMacro {
 
 		return fields;
 	}
+
+	#if (js_es == '6')
+	// Rewrite field inits for ES6 generator: remove init expressions and move
+	// them right after super() call
+	// Note: it's safe because if you use those fields before super() call, haxe
+	// will see it and generate "Must call `super()` [...]" error accordingly
+	static public function fixES6Constructor(inClass:ClassType, fields:Array<Field>):Array<Field> {
+		var fieldInits = [];
+		var constructor:Null<Field> = null;
+
+		function registerInit(f:Field, t:Null<ComplexType>, e:Expr):ComplexType {
+			var fname = f.name;
+			fieldInits.push(macro this.$fname = $e);
+
+			// Guess constant types
+			if (t == null) {
+				switch (e.expr) {
+					case EConst(c):
+						t = switch (c) {
+							case CInt(_): macro :Int;
+							case CFloat(_): macro :Float;
+							case CString(_, _): macro :String;
+							case CRegexp(_, _): macro :EReg;
+							case CIdent('true') | CIdent('false'): macro :Bool;
+							case CIdent(_): null;
+						};
+
+					case _:
+				}
+			}
+
+			if (t == null) {
+				// Rewrite error to remove the confusing part
+				// Need to use fatal error to make sure the build macro
+				// chain stops and this error is not shadowed by some
+				// unexpected side effect
+				Context.fatalError('Variable requires type-hint', f.pos);
+			}
+
+			return t;
+		}
+
+		for (f in fields) {
+			if (f.name == "new") {
+				constructor = f;
+				continue;
+			}
+
+			if (f.access != null && Lambda.has(f.access, AStatic)) continue;
+
+			switch (f.kind) {
+				case FVar(_, null) | FProp(_, _, _, null) | FFun(_):
+
+				case FVar(t, e):
+					t = registerInit(f, t, e);
+					f.kind = FVar(t, null);
+
+				case FProp(g, s, t, e):
+					t = registerInit(f, t, e);
+					f.kind = FProp(g, s, t, null);
+			}
+		}
+
+		if (fieldInits.length > 0) {
+			if (constructor == null) {
+				fields.push((macro class {
+					public function new(props) {
+						super(props);
+						@:mergeBlock $b{fieldInits};
+					}
+				}).fields[0]);
+			} else {
+				switch (constructor.kind) {
+					case FFun(f):
+						function mapExpr(e) {
+							return switch (e.expr) {
+								case ECall({expr: EConst(CIdent("super"))}, params):
+									macro @:pos(e.pos) @:mergeBlock {
+										super($a{params});
+										@:mergeBlock $b{fieldInits};
+									};
+
+								case _: ExprTools.map(e, mapExpr);
+							}
+						}
+
+						f.expr = ExprTools.map(f.expr, mapExpr);
+
+					case _:
+				}
+			}
+		}
+
+		return fields;
+	}
+	#end
 
 	/**
 	 * Extract component default props
