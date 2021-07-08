@@ -29,11 +29,23 @@ happy to consider them.
 * Generate `propTypes` from components' `TProps` when compiling with `-debug`
  and `-D react-generate-proptypes`
 
-## Documentation
+## [Documentation](README.md)
 
-* PureComponent
-* Runtime warnings documentation
 * Update README.md
-* Proper migration guide (based off [react #next doc](./react-next.md))
-* Test (and potentially update) samples
-* Add more samples for new APIs
+* Getting started: intro
+* Getting started: Haxe "jsx"
+* Getting started: ReactType, ReactFragment
+* Advanced topics: PureComponent
+* Advanced topics: Children as render prop
+* Advanced topics: Using new `context` API
+* React `next`: intro
+* React `next`: Migration guide
+* Development tools: Compilation warnings
+* Development tools: Runtime warnings
+
+## [Samples](../samples/)
+
+* Current examples will need to be updated
+* Samples should be compiled by CI
+* New sample: using context
+* New sample: ??

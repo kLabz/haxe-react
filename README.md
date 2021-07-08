@@ -4,16 +4,16 @@
 [![Haxelib Version](https://img.shields.io/github/tag/kLabz/haxe-react.svg?label=haxelib)](http://lib.haxe.org/p/react-next)
 [![Join the chat at https://gitter.im/haxe-react](https://img.shields.io/badge/gitter-join%20chat-brightgreen.svg)](https://gitter.im/haxe-react/Lobby)
 
-A Haxe library offering externs and tool functions leveraging Haxe's excellent type system and
-compile time macros to offer a strongly typed language to work with the increasingly popular
-[React](https://facebook.github.io/react/) library.
+A Haxe library offering externs and tool functions leveraging Haxe's excellent
+type system and compile time macros to offer a strongly typed language to work
+with the increasingly popular [React](https://reactjs.org) library.
 
 	haxelib install react-next
 
 ### ⚠️ Warning: README.md outdated
 
-This readme needs many updates. See [changes in #next](./doc/react-next.md); other docs available
-in [`doc` folder](./doc/).
+This readme needs many updates. See [changes in #next](./doc/react-next.md);
+other docs available in [`doc` folder](./doc/).
 
 ### What's included / not included
 
@@ -28,19 +28,23 @@ We recommend looking into / contributing to the following efforts:
 
 ### Application architecture examples
 
-React doesn't enforce any specific application architecture; here are a few approaches:
+React doesn't enforce any specific application architecture; here are a few
+approaches:
 
-**Redux**, a very popular new approach of Model-View-Intent architecture: global state object,
-following immutability principles, but the wiring has been re-imagined to use the best of Haxe:
+**Redux**, a very popular new approach of Model-View-Intent architecture: global
+state object, following immutability principles, but the wiring has been
+re-imagined to use the best of Haxe:
 
 - https://github.com/elsassph/haxe-react-redux
 
-**MMVC**, classic, battle tested, Model-View-Mediator with state of the art Dependency Injection:
+**MMVC**, classic, battle tested, Model-View-Mediator with state of the art
+Dependency Injection:
 
 - https://github.com/elsassph/haxe-react-mmvc
 
-**Flux**, inspired by Facebook's suggested architecture for React; this is a very quick PoC
-which probably won't scale well to complex apps, but it shows a good range of React features:
+**Flux**, inspired by Facebook's suggested architecture for React; this is a
+very quick PoC which probably won't scale well to complex apps, but it shows a
+good range of React features:
 
 - https://github.com/massiveinteractive/haxe-react/tree/master/samples/todoapp
 
@@ -75,26 +79,48 @@ class App extends ReactComponent {
 }
 ```
 
-Note that `React.createElement` strictly expects either a `String`, a `Function`, or a class
-extending `ReactComponent`. It includes when writing externs for 3rd party JS libraries you
-must specify `extends`:
+Note that `React.createElement` strictly expects either a `String`, a `Function`
+(without arguments or with one argument for receiving props), or a class
+extending `ReactComponent`. It includes when writing externs for 3rd party JS
+libraries you must specify `extends`:
 
 ```haxe
 @:jsRequire('react-redux', 'Provider')
-extern class Provider extends react.ReactComponent { }
+extern class Provider extends react.ReactComponent {}
 ```
+
+Note that you should define the props supported by this component to allow users
+to type-check their props:
+
+```haxe
+import react.ReactComponent;
+import redux.StoreMethods;
+
+typedef Props<TState> = {
+	var store:StoreMethods<TState>;
+	var children:ReactSingleFragment;
+}
+
+@:jsRequire('react-redux', 'Provider')
+extern class Provider<TState> extends ReactComponentOfProps<Props<TState>> {}
+```
+
+(in this example, `TState` will be infered by haxe compiler)
 
 ## JSX
 
-The Haxe compiler (and editors) doesn't allow to use exactly the JSX XML DSL,
-so we had to compromise a bit...
+TODO: update and link to doc/jsx.md (TODO) for more information.
 
-This library's take on JSX is to use a compile-time macro to parse JSX as a string to generate
-the same kind of code that Facebook's JSX, Babel and Typescript will generate.
+The Haxe compiler (and editors) doesn't allow [yet] to use exactly the JSX XML
+DSL, so we had to compromise a bit...
 
-Both classic JSX `{}` binding and Haxe string interpolation `$var` / `${expression}` / `<$Comp>`
-are allowed. The advantage of string interpolation is Haxe editor supports for completion and
-code navigation.
+This library's take on JSX is to use a compile-time macro to parse JSX as a
+string to generate the same kind of code that Facebook's JSX, Babel and
+Typescript will generate.
+
+Both classic JSX `{}` binding and Haxe string interpolation `$var` /
+`${expression}` / `<$Comp>` are allowed. The advantage of string interpolation
+is Haxe editor supports for completion and code navigation.
 
 Spread operator and complex expressions within curly braces are supported.
 
@@ -154,7 +180,7 @@ Two syntaxes are supported:
 
 1. JSX is not String magic! **Do not concatenate Strings** to construct the JSX expression
 
-2. Haxe's JSX parser is not "re-entrant"
+2. Haxe's JSX parser is not "re-entrant" (TODO: update)
 
 	In JavaScript you can nest JSX inside curly-brace expressions:
 	```javascript
@@ -171,7 +197,7 @@ Two syntaxes are supported:
 
 ## Components strict typing
 
-The default `ReactComponent` type is a shorthand for `ReactComponentOf<Dynamic, Dynamic, Dynamic>`,
+The default `ReactComponent` type is a shorthand for `ReactComponentOf<Dynamic, Dynamic>`,
 a fully untyped component.
 
 To fully benefit from Haxe's strict typing you should look into extending a stricter base class:
@@ -194,20 +220,24 @@ This means you are expected to use `npm` to install this dependency:
 
 	npm install react
 
-and a second build step to generate the final JS file, for instance using `browserify`:
+and a second build step to generate the final JS file, for instance using
+`browserify`:
 
 	npm install browserify
 	browserify haxe-output.js -o final-output.js
 
 (note that you can use `watchify` to automatically run this build step)
 
+TODO: webpack
+
 ### Global JS
 
-The other common method is to download or reference the CDN files of React JS in your HTML page:
+The other common method is to download or reference the CDN files of React JS in
+your HTML page:
 
 ```html
-<script src="//cdnjs.cloudflare.com/ajax/libs/react/16.2.0/umd/react.development.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/react-dom/16.2.0/umd/react-dom.development.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/react/16.6.0/umd/react.development.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/react-dom/16.6.0/umd/react-dom.development.js"></script>
 ```
 
 and don't forget to add the following Haxe define to your build command:
@@ -221,7 +251,8 @@ Look at `samples/todoapp` for an example of this approach.
 
 ### Inline ReactElements
 
-By default, when building for release (eg. without `-debug`), calls to `React.createElement` are replaced by inline JS objects (if possible).
+By default, when building for release (eg. without `-debug`), calls to
+`React.createElement` are replaced by inline JS objects (if possible).
 
 See: https://github.com/facebook/react/issues/3228
 
@@ -239,8 +270,11 @@ This behaviour can be **disabled** using `-D react_no_inline`.
 
 ### Avoidable renders warning
 
-Setting `-D react_render_warning` will enable runtime warnings for avoidable renders.
+Setting `-D react_render_warning` will enable runtime warnings for avoidable
+renders.
 
-This will add a `componentDidUpdate` (or update the existing one) where a **shallowCompare** is done on current and previous props and state. If both did not change, a warning will be displayed in the console.
+This will add a `componentDidUpdate` (or update the existing one) where a
+**shallowCompare** is done on current and previous props and state. If both did
+not change, a warning will be displayed in the console.
 
 False positives can happen if your props are not flat, due to the shallowCompare.

@@ -50,7 +50,8 @@ typing system for props in haxe-react.
 In Haxe React, props typing is usually done using `TProps`, a typedef typing the
 props your component can use and should be called with.
 
-These types are enforced at compile times when using jsx (haxe-react #next only)
+These types are enforced at compile time when using `jsx`, and will be available
+for completion within your component.
 
 The above example would be implemented with something like that:
 
@@ -70,5 +71,47 @@ class MyComponent extends ReactComponentOfProps<MyComponentProps> {
 }
 ```
 
+### Stateful components
+
+You can type your `state` the same way, using the second type parameter of
+`ReactComponentOf` or using `ReactComponentOfState` if your component does not
+use props:
+
+```haxe
+import react.ReactComponent;
+
+private typedef Props = {
+	var requiredFunc:String->Void;
+	@:optional var optionalBool:Bool;
+}
+
+private typedef State = {
+	var open:Bool;
+}
+
+class MyStatefulComponent extends ReactComponentOf<Props, State> {
+	public function new(props:Props) {
+		super(props);
+
+		state = {
+			open: false
+		};
+	}
+
+	// ...
+}
+
+class MyStatefulComponentWithoutProps extends ReactComponentOfState<State> {
+	public function new() {
+		super();
+
+		state = {
+			open: false
+		};
+	}
+
+	// ...
+}
+```
 
 [react-proptypes]: https://reactjs.org/docs/typechecking-with-proptypes.html
